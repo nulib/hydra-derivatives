@@ -63,10 +63,10 @@ describe "Transcoding" do
                                                 { label: :string_recipe, recipe: '-quiet', processor: 'jpeg2k_image',                     url: "#{uri}/string_recipe" },
                                                 { label: :diy,                             processor: 'jpeg2k_image',                     url: "#{uri}/original_file_diy" }])
         when 'image/x-adobe-dng'
-          ImageDerivatives.create(self, source: :original_file,
-                                        outputs: [
-                                          { label: :access, size: "300x300>", format: 'jpg', processor: :raw_image },
-                                          { label: :thumb,  size: "100x100>", format: 'jpg', processor: :raw_image }])
+          RawImageDerivatives.create(self, source: :original_file,
+                                           outputs: [
+                                             { label: :access, size: "300x300>", format: 'jpg', processor: :raw_image },
+                                             { label: :thumb,  size: "100x100>", format: 'jpg', processor: :raw_image }])
         end
       end
     end

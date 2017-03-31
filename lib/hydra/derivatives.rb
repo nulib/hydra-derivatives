@@ -15,6 +15,7 @@ module Hydra
       autoload :DocumentDerivatives
       autoload :FullTextExtract
       autoload :ImageDerivatives
+      autoload :RawImageDerivatives
       autoload :Jpeg2kImageDerivatives
       autoload :PdfDerivatives
       autoload :Runner
