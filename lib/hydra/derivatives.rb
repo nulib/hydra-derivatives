@@ -37,6 +37,7 @@ module Hydra
       autoload :PersistExternalFileOutputFileService
       autoload :TempfileService
       autoload :MimeTypeService
+      autoload :MagickGeometryService
     end
 
     # Raised if the timout elapses

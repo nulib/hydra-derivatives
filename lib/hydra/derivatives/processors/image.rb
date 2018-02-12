@@ -1,4 +1,4 @@
-require 'mini_magick'
+require 'ruby-vips'
 
 module Hydra::Derivatives::Processors
   class Image < Processor
@@ -21,8 +21,10 @@ module Hydra::Derivatives::Processors
       def create_resized_image
         create_image do |xfrm|
           if size
-            xfrm.flatten
-            xfrm.resize(size)
+            (hscale, vscale) = Hydra::Derivatives::MagickGeometryService.resolve_pct(w: xfrm.width, h: xfrm.height, geometry: size)
+            xfrm = xfrm.flatten
+            size_opts = hscale == vscale ? {} : { vscale: vscale }
+            xfrm.resize(hscale, size_opts)
           end
         end
       end
@@ -30,14 +32,13 @@ module Hydra::Derivatives::Processors
       def create_image
         xfrm = selected_layers(load_image_transformer)
         yield(xfrm) if block_given?
-        xfrm.format(directives.fetch(:format))
-        xfrm.quality(quality.to_s) if quality
         write_image(xfrm)
       end
 
       def write_image(xfrm)
-        output_io = StringIO.new
-        xfrm.write(output_io)
+        write_opts = { Q: quality }.reject { |k,v| v.nil? }
+        img_format = ".#{directives.fetch(:format)}"
+        output_io = StringIO.new(xfrm.write_to_buffer(img_format, write_opts))
         output_io.rewind
         output_file_service.call(output_io, directives)
       end
@@ -45,7 +46,7 @@ module Hydra::Derivatives::Processors
       # Override this method if you want a different transformer, or need to load the
       # raw image from a different source (e.g. external file)
       def load_image_transformer
-        MiniMagick::Image.open(source_path)
+        Vips::Image.new_from_file(source_path)
       end
 
     private
@@ -59,10 +60,11 @@ module Hydra::Derivatives::Processors
       end
 
       def selected_layers(image)
-        if image.type =~ /pdf/i
-          image.layers[directives.fetch(:layer, 0)]
+        loader = image.get('vips-loader')
+        if loader =~ /pdf/i
+          Vips::Image.pdfload(source_path, page: directives.fetch(:layer, 0))
         elsif directives.fetch(:layer, false)
-          image.layers[directives.fetch(:layer)]
+          Vips::Image.send(loader.to_sym, source_path, page: directives.fetch(:layer))
         else
           image
         end
