@@ -61,9 +61,10 @@ module Hydra::Derivatives::Processors
 
       def selected_layers(image)
         loader = image.get('vips-loader')
+        loader_flags = Vips::Operation.new(loader).get_construct_args.collect(&:first)
         if loader =~ /pdf/i
           Vips::Image.pdfload(source_path, page: directives.fetch(:layer, 0))
-        elsif directives.fetch(:layer, false)
+        elsif loader_flags.include?('page') && directives.fetch(:layer, false)
           Vips::Image.send(loader.to_sym, source_path, page: directives.fetch(:layer))
         else
           image
