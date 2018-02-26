@@ -22,6 +22,7 @@ module Hydra::Derivatives::Processors
         create_image do |xfrm|
           if size
             (hscale, vscale) = Hydra::Derivatives::MagickGeometryService.resolve_pct(w: xfrm.width, h: xfrm.height, geometry: size)
+            xfrm = xfrm.flatten(background: 65535) if xfrm.bands > 3
             size_opts = hscale == vscale ? {} : { vscale: vscale }
             xfrm.resize(hscale, size_opts)
           else
