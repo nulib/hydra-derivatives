@@ -24,7 +24,7 @@ module Hydra::Derivatives::Processors
             (hscale, vscale) = Hydra::Derivatives::MagickGeometryService.resolve_pct(w: xfrm.width, h: xfrm.height, geometry: size)
             xfrm = xfrm.flatten
             size_opts = hscale == vscale ? {} : { vscale: vscale }
-            xfrm.resize(hscale, size_opts)
+            xfrm = xfrm.resize(hscale, size_opts)
           end
         end
       end
