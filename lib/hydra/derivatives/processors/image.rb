@@ -24,14 +24,16 @@ module Hydra::Derivatives::Processors
             (hscale, vscale) = Hydra::Derivatives::MagickGeometryService.resolve_pct(w: xfrm.width, h: xfrm.height, geometry: size)
             xfrm = xfrm.flatten
             size_opts = hscale == vscale ? {} : { vscale: vscale }
-            xfrm = xfrm.resize(hscale, size_opts)
+            xfrm.resize(hscale, size_opts)
+          else
+            xfrm
           end
         end
       end
 
       def create_image
         xfrm = selected_layers(load_image_transformer)
-        yield(xfrm) if block_given?
+        xfrm = yield(xfrm) if block_given?
         write_image(xfrm)
       end
 
